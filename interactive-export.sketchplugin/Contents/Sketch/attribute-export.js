@@ -150,8 +150,9 @@ function onExportSlices(context) {
 			var svgAsNsString = NSString.stringWithFormat("%@", svgString);
 			if (writeNonConflictingFile) {
 				svgAsNsString.writeToFile_atomically(buildNonConflictingPath(path), true);
+			} else {
+				svgAsNsString.writeToFile_atomically(path, true);
 			}
-			svgAsNsString.writeToFile_atomically(path, true);
 		}
 	}
 }
