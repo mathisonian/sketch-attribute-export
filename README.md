@@ -127,6 +127,12 @@ Additionally, if you wish to run the plugin every time it is built:
 npm run start
 ```
 
+You may need to update your Sketch defaults to always reload plugins:
+
+```bash
+defaults write com.bohemiancoding.sketch3 AlwaysReloadScript -bool YES
+```
+
 ### Custom Configuration
 
 #### Babel
@@ -169,4 +175,3 @@ skpm log
 ```
 
 The `-f` option causes `skpm log` to not stop when the end of logs is reached, but rather to wait for additional data to be appended to the input
-
