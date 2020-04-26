@@ -70,16 +70,15 @@ var exports =
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
+/***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
 exports['default'] = function (context) {};
+
+var writeNonConflictingFile = false; // TODO: Use plugin settings here
 
 function saveJSON(obj, filePath) {
 	obj = JSON.parse(JSON.stringify(obj));
@@ -95,6 +94,14 @@ function nameToId(str) {
 
 function getClassFromName(name) {
 	return name.split('.').slice(1).join(' ');
+}
+
+function buildNonConflictingPath(path) {
+	var splitParts = path.split('\\').pop().split('/');
+	var pathToFile = splitParts.slice(0, splitParts.length - 1).join('/');
+	var filenameParts = splitParts.pop().split('.');
+	var newFileName = filenameParts.slice(0, -2).concat([filenameParts[filenameParts.length - 2] + "_attribute_export", filenameParts[filenameParts.length - 1]]).join('.');
+	return pathToFile + '/' + newFileName;
 }
 
 function onExportSlices(context) {
@@ -139,7 +146,13 @@ function onExportSlices(context) {
 			});
 
 			svgString = svgString.replace(/svg width\=\"\d+px" height\=\"\d+px"/, 'svg ');
-			NSString.stringWithString(svgString).writeToFile_atomically_encoding_error(path, true, NSUTF8StringEncoding, nil);
+
+			var svgAsNsString = NSString.stringWithFormat("%@", svgString);
+			if (writeNonConflictingFile) {
+				svgAsNsString.writeToFile_atomically(buildNonConflictingPath(path), true);
+			} else {
+				svgAsNsString.writeToFile_atomically(path, true);
+			}
 		}
 	}
 }

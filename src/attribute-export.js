@@ -1,3 +1,4 @@
+var writeNonConflictingFile = false; // TODO: Use plugin settings here
 
 function saveJSON(obj, filePath) {
 	obj = JSON.parse(JSON.stringify(obj));
@@ -13,6 +14,14 @@ function nameToId(str) {
 
 function getClassFromName(name) {
 	return name.split('.').slice(1).join(' ');
+}
+
+function buildNonConflictingPath(path) {
+	const splitParts = path.split('\\').pop().split('/')
+	const pathToFile = splitParts.slice(0, splitParts.length - 1).join('/')
+	const filenameParts = splitParts.pop().split('.');
+	const newFileName = filenameParts.slice(0, -2).concat([filenameParts[filenameParts.length - 2] + "_attribute_export", filenameParts[filenameParts.length - 1]]).join('.')
+	return pathToFile + '/' + newFileName;
 }
 
 function onExportSlices(context) {
@@ -55,7 +64,13 @@ function onExportSlices(context) {
 			})
 
 			svgString = svgString.replace(/svg width\=\"\d+px" height\=\"\d+px"/, 'svg ');
-			NSString.stringWithString(svgString).writeToFile_atomically_encoding_error(path, true, NSUTF8StringEncoding, nil);
+
+			const svgAsNsString = NSString.stringWithFormat("%@", svgString);
+			if (writeNonConflictingFile) {
+				svgAsNsString.writeToFile_atomically(buildNonConflictingPath(path), true);
+			} else {
+				svgAsNsString.writeToFile_atomically(path, true);
+			}
 		}
 	}
 
